@@ -5,7 +5,7 @@
 #define MAX 1024
 
 void usage(){
-	printf("usage: \t /a.out <filename> <string>\n");
+	printf("usage: \t ./a.out <file_name> <string>\n");
 }
 
 int main(int argc, char **argv){
@@ -26,6 +26,8 @@ int main(int argc, char **argv){
  	}
  	
  	while(fgets(fline, MAX, fp) != NULL){
+ 		if (count == 0)
+ 			printf("<file_name>: <line_number> <line>\n");
  		count++;
  		if (newline = strchr(fline, '\n'))
  			*newline = '\0';
