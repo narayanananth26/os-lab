@@ -10,7 +10,7 @@ struct process {
     int waiting_time;
 };
 
-int main() {
+int main(){
     int num_processes, time_quantum;
     struct process p[MAX_PROCESS];
 
