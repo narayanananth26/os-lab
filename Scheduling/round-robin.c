@@ -1,54 +1,101 @@
-#include <stdio.h>
-
-#define MAX_PROCESS 10
-
-struct process {
-    int pid;
-    int burst_time;
-    int remaining_time;
-    int turnaround_time;
-    int waiting_time;
-};
-
-int main(){
-    int num_processes, time_quantum;
-    struct process p[MAX_PROCESS];
-
-    printf("Enter the number of processes: ");
-    scanf("%d", &num_processes);
-
-    for (int i = 0; i < num_processes; i++) {
-        printf("Enter burst time for process %d: ", i+1);
-        scanf("%d", &p[i].burst_time);
-        p[i].remaining_time = p[i].burst_time;
-        p[i].pid = i+1;
-    }
-
-    printf("Enter time quantum: ");
-    scanf("%d", &time_quantum);
-
-    int current_time = 0, completed = 0;
-    while (completed < num_processes) {
-        for (int i = 0; i < num_processes; i++) {
-            if (p[i].remaining_time > 0) {
-                int time_executed = p[i].remaining_time > time_quantum ? time_quantum : p[i].remaining_time;
-                current_time += time_executed;
-                p[i].remaining_time -= time_executed;
-                printf("Process %d executed for %d seconds. Remaining time: %d\n", p[i].pid, time_executed, p[i].remaining_time);
-                if (p[i].remaining_time == 0) {
-                    p[i].turnaround_time = current_time;
-                    p[i].waiting_time = p[i].turnaround_time - p[i].burst_time;
-                    completed++;
-                }
-            }
+#include<stdio.h>
+#include<string.h>
+struct process
+{
+  char name[20];
+  int at,tt,bt,wt,status,ct;
+}p[20],temp;
+struct done
+{
+  char name[20];
+  int st,ct;
+}d[20];
+void main()
+{
+  int n,i,j,ls,min,fnd,num,idle;
+  float twt=0.0,ttt=0.0;
+  printf("ENTER THE NUMBER OF PROCESSES : ");
+  scanf("%d",&n);
+  for(i=0;i<n;i++)                         //Input process details
+  {
+    printf("\nENTER DETAILS OF PROCESS %d",i+1);
+    printf("\nPROCESS NAME : ");
+    scanf(" %s",p[i].name);
+    printf("ARRIVAL TIME : ");
+    scanf("%d",&p[i].at);
+    printf("BURST TIME : ");
+    scanf("%d",&p[i].bt);
+    p[i].status = 0;
+  }
+  for(i=0,ls=0,num=0,idle=0;ls<n;)
+  {
+    for(j=0,fnd=0;j<n;j++)
+    {
+      if(i>=p[j].at && p[j].status==0)
+      {
+        if(fnd==0)
+        {
+          min = j;
+          fnd = 1;
         }
+        else if(fnd!=0 && p[min].bt>p[j].bt)
+        {
+          min = j;
+        }
+      }
     }
-
-    printf("Process ID\tBurst Time\tTurnaround Time\tWaiting Time\n");
-    for (int i = 0; i < num_processes; i++) {
-        printf("%d\t\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].burst_time, p[i].turnaround_time, p[i].waiting_time);
+    if(idle==0 && fnd==0)
+    {
+      strcpy(d[num].name,"Idle");
+      d[num].st = i;
+      i++;
+      idle = 1;
     }
-
-    return 0;
+    else if(fnd==1)
+    {
+      if(idle==1)
+      {
+        d[num].ct = i;
+        num++;
+        idle = 0;
+      }
+      strcpy(d[num].name,p[min].name);
+      p[min].status =1;
+      d[num].st = i;
+      d[num].ct = i + p[min].bt;
+      i = d[num].ct;
+      p[min].ct = d[num].ct;
+      p[min].tt = p[min].ct - p[min].at;
+      p[min].wt = p[min].tt - p[min].bt;
+      num++;
+      ls++;
+    }
+    else
+    {
+      i++;
+    }
+  }
+  printf("\nPROCESS NAME\tCOMPLETION TIME (ms)\tWAITING TIME (ms)\tTURNAROUND TIME (ms)\n\n");
+  for(i=0;i<n;i++)
+  {
+    printf("    %s\t\t\t%d\t\t\t%d\t\t\t%d\n",p[i].name,p[i].ct,p[i].wt,p[i].tt);
+    twt+=p[i].wt;
+    ttt+=p[i].tt;
+  }
+  printf("\n\nGANTT CHART ");
+  printf("\n\t--------------------------------------------------------------------\n\t");
+  for(i=0;i<num;i++)
+  {
+    printf("|");
+    printf("%s\t",d[i].name);
+  }
+  printf(" |");
+  printf("\n\t--------------------------------------------------------------------\n\t");
+  for(i=0;i<num;i++)
+  {
+      printf("%d\t",d[i].st);
+  }
+  printf("%d\t\n",d[num-1].ct);
+  printf("\nAVERAGE WAITING TIME : %f",(twt/n));
+  printf("\nAVERAGE TURNAROUND TIME : %f\n",(ttt/n));
 }
-
